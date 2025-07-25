@@ -1,13 +1,32 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+//import { useState } from 'react'
+import { LeadsPage } from './pages/LeadsPage';
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+//import reactLogo from './assets/react.svg'
+//import viteLogo from '/vite.svg'
 import './App.css'
 
+// Opcional: Definir um tema básico para a aplicação
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2', // Um azul padrão
+    },
+    secondary: {
+      main: '#f50057', // Um rosa para contraste
+    },
+  },
+});
+
 function App() {
-  const [count, setCount] = useState(0)
+  //const [count, setCount] = useState(0)
 
   return (
-    <>
+    <ThemeProvider theme={theme}>
+      {/* CssBaseline normaliza o CSS entre navegadores, como um reset.css */}
+      <CssBaseline />
+      <LeadsPage />
+    </ThemeProvider>
+    /*<>
       <div>
         <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
@@ -28,7 +47,7 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
-    </>
+    </>*/
   )
 }
 
