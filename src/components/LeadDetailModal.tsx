@@ -62,12 +62,12 @@ export function LeadDetailModal({ lead, onClose }: LeadDetailModalProps) {
           <Grid size={{ xs: 12, sm: 6 }}>
             <Typography variant="subtitle1"><strong>Veículo de Interesse:</strong> {lead.vehicle || 'N/A'}</Typography>
             <Typography variant="subtitle1"><strong>Placa:</strong> {lead.licensePlate || 'N/A'}</Typography>
-            <Typography variant="subtitle1"><strong>Status:</strong> {statusMap[lead.status] || 'Desconhecido'}</Typography>
-            <Typography variant="subtitle1"><strong>Temperatura:</strong> {temperatureMap[lead.temperature] || 'Desconhecida'}</Typography>
-            <Typography variant="subtitle1"><strong>Portal:</strong> {portalMap[lead.portal] || 'Desconhecido'}</Typography>
+            <Typography variant="subtitle1"><strong>Status:</strong> {statusMap[lead.status]?.label || 'Desconhecido'}</Typography>
+            <Typography variant="subtitle1"><strong>Temperatura:</strong> {temperatureMap[lead.temperature]?.label || 'Desconhecida'}</Typography>
+            <Typography variant="subtitle1"><strong>Portal:</strong> {portalMap[lead.portal]?.label || 'Desconhecido'}</Typography>
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <Typography variant="subtitle1"><strong>Assunto:</strong> {subjectMap[lead.subject] || 'Desconhecido'}</Typography>
+            <Typography variant="subtitle1"><strong>Assunto:</strong> {subjectMap[lead.subject]?.label || 'Desconhecido'}</Typography>
             <Typography variant="subtitle1"><strong>Data do Contato:</strong> {formatDate(lead.sendDate)}</Typography>
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>

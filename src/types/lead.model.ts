@@ -17,32 +17,66 @@ export interface Lead {
 }
 
 // Mapeadores para transformar códigos em texto legível
-export const subjectMap: { [key: number]: string } = {
-  1: "Ligamos para você", 2: "Vender veículo", 3: "Solicite o seu carro",
-  4: "Não encontrou o seu veículo", 5: "Simular financiamento", 6: "Estou interessado",
-  7: "Fale conosco", 8: "Trabalhe conosco", 9: "Enviar proposta", 10: "Comprar/trocar veículo",
-  11: "Contato Classificados", 12: "Contato via chat", 13: "Agenciamento", 14: "Chatbot",
-  15: "Loja", 16: "Leads UTalk", 17: "Simulação via Credere"
+export const subjectMap: { [key: number]: { label: string; enum: string } } = {
+  1: { label: "Ligamos para você", enum: "CALL_YOU" },
+  2: { label: "Vender veículo", enum: "SELL_VEHICLE" },
+  3: { label: "Solicite o seu carro", enum: "REQUEST_CAR" },
+  4: { label: "Não encontrou o seu veículo", enum: "NOT_FOUND" },
+  5: { label: "Simular financiamento", enum: "SIMULATE_FINANCING" },
+  6: { label: "Estou interessado", enum: "INTERESTED" },
+  7: { label: "Fale conosco", enum: "CONTACT_US" },
+  8: { label: "Trabalhe conosco", enum: "WORK_WITH_US" },
+  9: { label: "Enviar proposta", enum: "SEND_PROPOSAL" },
+  10: { label: "Comprar/trocar veículo", enum: "BUY_CHANGE_VEHICLE" },
+  11: { label: "Contato Classificados", enum: "CLASSFIEDS_CONTACT" },
+  12: { label: "Contato via chat", enum: "CHAT_CONTACT" },
+  13: { label: "Agenciamento", enum: "SALES_AGENCY" },
+  14: { label: "Chatbot", enum: "CHATBOT_CONTACT" },
+  15: { label: "Loja", enum: "STORE_CONTACT" },
+  16: { label: "Leads UTalk", enum: "LEADS_UTALK" },
+  17: { label: "Simulação via Credere", enum: "CREDERE_SIMULATION" }
 };
 
-export const statusMap: { [key: number]: string } = {
-  1: "Aguardando contato",
-  5: "Venda realizada",
-  7: "Encerrado"
+export const statusMap: { [key: number]: { label: string; enum: string } } = {
+  1: { label: "Aguardando contato", enum: "WAITING_CONTACT" },
+  5: { label: "Venda realizada", enum: "SALE_MADE" },
+  7: { label: "Encerrado", enum: "CLOSED" }
 };
 
-export const temperatureMap: { [key: number]: string } = {
-  1: "Fria",
-  2: "Morna",
-  3: "Quente",
-  4: "Super Lead"
+export const temperatureMap: { [key: number]: { label: string; enum: string } } = {
+  1: { label: "Fria", enum: "COLD" },
+  2: { label: "Morna", enum: "WARM" },
+  3: { label: "Quente", enum: "HOT" },
+  4: { label: "Super Lead", enum: "SUPER_LEAD" }
 };
 
-export const portalMap: { [key: number]: string } = {
-  1: "OLX", 2: "WebMotors", 3: "Vrum", 4: "Mercado Livre", 5: "ICarros", 6: "MeuCarango",
-  7: "OQTDB", 8: "Tribuna do Norte", 9: "Carango", 10: "Autoline", 11: "Facebook",
-  12: "Instagram", 13: "Youtube", 14: "Whatsapp", 15: "Site Próprio", 16: "Meu Carro Novo",
-  17: "BomDaPeste", 18: "Moto.com.br", 19: "Portal Montadora", 20: "TROVIT", 21: "Seminovos BH",
-  22: "Outros", 23: "Google", 24: "Mobiauto", 25: "Usados.br", 26: "Usados BR", 27: "Usadosbr",
-  28: "Napista"
+export const portalMap: { [key: number]: { label: string; enum: string } } = {
+  1: { label: "OLX", enum: "OLX" },
+  2: { label: "WebMotors", enum: "WEBMOTORS" },
+  3: { label: "Vrum", enum: "VRUM" },
+  4: { label: "Mercado Livre", enum: "MERCADO_LIVRE" },
+  5: { label: "ICarros", enum: "ICARROS" },
+  6: { label: "MeuCarango", enum: "MEUCARANGO" },
+  7: { label: "OQTDB", enum: "OQTDB" },
+  8: { label: "Tribuna do Norte", enum: "TRIBUNA_DO_NORTE" },
+  9: { label: "Carango", enum: "CARANGO" },
+  10: { label: "Autoline", enum: "AUTOLINE" },
+  11: { label: "Facebook", enum: "FACEBOOK" },
+  12: { label: "Instagram", enum: "INSTAGRAM" },
+  13: { label: "Youtube", enum: "YOUTUBE" },
+  14: { label: "Whatsapp", enum: "WHATSAPP" },
+  15: { label: "Site Próprio", enum: "SITE_PROPRIO" },
+  16: { label: "Meu Carro Novo", enum: "MEU_CARRO_NOVO" },
+  17: { label: "BomDaPeste", enum: "BOMDAPESTE" },
+  18: { label: "Moto.com.br", enum: "MOTO_COM_BR" },
+  19: { label: "Portal Montadora", enum: "PORTAL_MONTADORA" },
+  20: { label: "TROVIT", enum: "TROVIT" },
+  21: { label: "Seminovos BH", enum: "SEMINOVOS_BH" },
+  22: { label: "Outros", enum: "OTHER" },
+  23: { label: "Google", enum: "GOOGLE" },
+  24: { label: "Mobiauto", enum: "MOBIAUTO" },
+  25: { label: "Usados.br", enum: "USADOS_BR_PONTO" },
+  26: { label: "Usados BR", enum: "USADOS_BR" },
+  27: { label: "Usadosbr", enum: "USADOSBR" },
+  28: { label: "Napista", enum: "NAPISTA" }
 };

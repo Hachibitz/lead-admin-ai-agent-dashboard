@@ -1,94 +1,88 @@
 import { useState, useEffect } from 'react';
-import { Container, Typography, CircularProgress, Alert, Box } from '@mui/material';
-import type { Lead } from '../types/lead.model';
-import { LeadsTable } from '../components/LeadsTable';
+import {
+  Container, Typography, CircularProgress, Alert, Box, TextField,
+  Select, MenuItem, InputLabel, FormControl, Button, Paper, Pagination
+} from '@mui/material';
+import { type Lead, statusMap, temperatureMap, portalMap, subjectMap } from '../types/lead.model';
+import { LeadsTable, type SortConfig } from '../components/LeadsTable';
 import { LeadDetailModal } from '../components/LeadDetailModal';
-
-// Dados mockados para simular a resposta da sua API.
-// No futuro, você vai remover isso e fazer uma chamada fetch real.
-const MOCK_LEADS: Lead[] = [
-  { id: 1, name: 'João da Silva', email: 'joao@email.com', phone: '84999998888', cpf: '111.222.333-44', birthday: '1990-05-15', sendDate: '2025-07-24 10:30:00', message: 'Gostaria de saber mais sobre o financiamento do Onix.', subject: 5, status: 1, temperature: 3, portal: 14, vehicle: 'Chevrolet Onix 1.0', licensePlate: 'QWE-1234' },
-  { id: 2, name: 'Maria Oliveira', email: 'maria@email.com', phone: '84988887777', sendDate: '2025-07-23 15:00:00', message: 'Tenho interesse no Corolla, podemos agendar uma visita?', subject: 6, status: 1, temperature: 4, portal: 15, vehicle: 'Toyota Corolla XEi' },
-  { id: 3, name: 'Pedro Souza', phone: '84977776666', sendDate: '2025-07-22 09:12:00', message: 'Vi o anúncio no Instagram.', subject: 12, status: 5, temperature: 2, portal: 12, vehicle: 'Honda Civic Sport' },
-  { id: 4, name: 'Ana Costa', email: 'ana.costa@email.com', phone: '84966665555', sendDate: '2025-07-21 20:45:00', message: 'Contato via site', subject: 7, status: 7, temperature: 1, portal: 22, vehicle: 'Hyundai HB20' }
-];
-
+import { useDebounce } from '../hooks/useDebounce';
+import type { Page } from '../types/pagination.model';
 
 export function LeadsPage() {
-  // --- ESTADO (State) ---
-  // A "memória" do nosso componente.
-  
-  // Armazena a lista de leads que vem da API. Inicia como um array vazio.
+  // --- ESTADO DA APLICAÇÃO ---
   const [leads, setLeads] = useState<Lead[]>([]);
-  
-  // Armazena a lead que foi clicada para ser exibida no modal. Inicia como null (nenhuma selecionada).
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-
-  // Controla a exibição do ícone de carregamento.
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  
-  // Armazena mensagens de erro, caso a busca falhe.
   const [error, setError] = useState<string | null>(null);
-
-  // --- EFEITOS (Effects) ---
-  // Código que executa em resposta a eventos do ciclo de vida do componente.
   
-  // useEffect com array de dependências vazio `[]` executa UMA VEZ, quando o componente "monta" na tela.
-  // Perfeito para buscar dados iniciais.
-  useEffect(() => {
-    // Função para buscar os dados. `async` permite usar `await`.
-    const fetchLeads = async () => {
-      try {
-        setIsLoading(true); // Começa a carregar
-        setError(null); // Limpa erros anteriores
+  // --- ESTADO DOS FILTROS E PAGINAÇÃO ---
+  const [searchText, setSearchText] = useState('');
+  const [status, setStatus] = useState('');
+  const [temperature, setTemperature] = useState('');
+  const [portal, setPortal] = useState('');
+  const [subject, setSubject] = useState('');
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
-        // --- PONTO DE INTEGRAÇÃO COM O BACKEND ---
-        // Aqui você vai substituir o mock pela chamada real.
-        // const response = await fetch('http://localhost:8080/api/leads'); // Exemplo de URL
-        // if (!response.ok) {
-        //   throw new Error('Falha ao buscar os dados das leads.');
-        // }
-        // const data: Lead[] = await response.json();
-        // setLeads(data);
+  // --- ESTADO DA ORDENAÇÃO ---
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'sendDate', direction: 'desc' });
+
+  // Debounce para o campo de busca
+  const debouncedSearchText = useDebounce(searchText, 500);
+
+  // --- EFEITO PRINCIPAL PARA BUSCAR DADOS ---
+  useEffect(() => {
+    const fetchLeads = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const params = new URLSearchParams();
+        // Filtros
+        if (debouncedSearchText) params.append('searchText', debouncedSearchText);
+        if (status) params.append('status', status);
+        if (temperature) params.append('temperature', temperature);
+        if (portal) params.append('portal', portal);
+        if (subject) params.append('subject', subject);
+
+        // Paginação e Ordenação
+        params.append('page', page.toString());
+        params.append('size', '10');
+        params.append('sort', `${sortConfig.field},${sortConfig.direction}`);
+
+        const response = await fetch(`http://localhost:8091/api/leads?${params.toString()}`);
+        if (!response.ok) {
+          throw new Error('Falha ao buscar os dados dos leads.');
+        }
         
-        // Simulação com os dados mockados e um atraso de 1.5s
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setLeads(MOCK_LEADS);
+        const data: Page<Lead> = await response.json();
+        setLeads(data.content);
+        setTotalPages(data.page.totalPages);
 
       } catch (err: any) {
         setError(err.message || 'Ocorreu um erro inesperado.');
       } finally {
-        setIsLoading(false); // Termina de carregar (com sucesso ou erro)
+        setIsLoading(false);
       }
     };
 
-    fetchLeads(); // Chama a função que acabamos de definir.
-  }, []); // O array vazio significa: "execute este efeito apenas uma vez".
+    fetchLeads();
+  }, [debouncedSearchText, status, temperature, portal, subject, page, sortConfig]); // Array de dependências
 
-  // --- HANDLERS (Manipuladores de Eventos) ---
-  const handleOpenModal = (lead: Lead) => {
-    setSelectedLead(lead);
+  // --- HANDLERS (MANIPULADORES DE EVENTOS) ---
+  const handleSort = (field: string) => {
+    const isAsc = sortConfig.field === field && sortConfig.direction === 'asc';
+    setSortConfig({ field, direction: isAsc ? 'desc' : 'asc' });
   };
-
-  const handleCloseModal = () => {
-    setSelectedLead(null);
-  };
-
-  // --- RENDERIZAÇÃO ---
-  // O que o usuário vai ver na tela.
   
-  // Se estiver carregando, mostra um spinner.
-  if (isLoading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-  
-  // Se der erro, mostra uma mensagem de alerta.
-  if (error) {
-    return <Alert severity="error">{error}</Alert>;
+  const handleClearFilters = () => {
+      setSearchText('');
+      setStatus('');
+      setTemperature('');
+      setPortal('');
+      setSubject('');
+      setPage(0);
   }
 
   return (
@@ -96,10 +90,79 @@ export function LeadsPage() {
       <Typography variant="h3" component="h1" gutterBottom>
         Painel de Leads
       </Typography>
-      
-      <LeadsTable leads={leads} onRowClick={handleOpenModal} />
-      
-      <LeadDetailModal lead={selectedLead} onClose={handleCloseModal} />
+
+      {/* --- SEÇÃO DE FILTROS --- */}
+      <Box component={Paper} elevation={2} sx={{ p: 2, mb: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        <TextField 
+          label="Buscar por nome, email..."
+          variant="outlined"
+          size="small"
+          sx={{ flexGrow: 1, minWidth: '200px' }}
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+        />
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <InputLabel>Status</InputLabel>
+          <Select value={status} label="Status" onChange={(e) => setStatus(e.target.value)}>
+            <MenuItem value=""><em>Todos</em></MenuItem>
+            {Object.entries(statusMap).map(([code, value]) => (
+              <MenuItem key={code} value={value.enum}>{value.label}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <InputLabel>Temperatura</InputLabel>
+          <Select value={temperature} label="Temperatura" onChange={(e) => setTemperature(e.target.value)}>
+            <MenuItem value=""><em>Todas</em></MenuItem>
+            {Object.entries(temperatureMap).map(([code, value]) => (
+              <MenuItem key={code} value={value.enum}>{value.label}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <InputLabel>Portal</InputLabel>
+          <Select value={portal} label="Portal" onChange={(e) => setPortal(e.target.value)}>
+            <MenuItem value=""><em>Todos</em></MenuItem>
+            {Object.entries(portalMap).map(([code, value]) => (
+              <MenuItem key={code} value={value.enum}>{value.label}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <InputLabel>Assunto</InputLabel>
+          <Select value={subject} label="Assunto" onChange={(e) => setSubject(e.target.value)}>
+            <MenuItem value=""><em>Todos</em></MenuItem>
+            {Object.entries(subjectMap).map(([code, value]) => (
+              <MenuItem key={code} value={value.enum}>{value.label}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <Button variant="outlined" onClick={handleClearFilters}>Limpar Filtros</Button>
+      </Box>
+
+      {isLoading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}><CircularProgress /></Box>
+      ) : error ? (
+        <Alert severity="error">{error}</Alert>
+      ) : (
+        <>
+          <LeadsTable leads={leads} onRowClick={(lead) => setSelectedLead(lead)} sortConfig={sortConfig} onSort={handleSort} />
+          {totalPages > 1 && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
+              <Pagination
+                count={totalPages}
+                page={page + 1}
+                onChange={(_e, value) => setPage(value - 1)}
+                color="primary"
+                showFirstButton
+                showLastButton
+              />
+            </Box>
+          )}
+        </>
+      )}
+
+      <LeadDetailModal lead={selectedLead} onClose={() => setSelectedLead(null)} />
     </Container>
   );
 }
