@@ -80,3 +80,17 @@ export const portalMap: { [key: number]: { label: string; enum: string } } = {
   27: { label: "Usadosbr", enum: "USADOSBR" },
   28: { label: "Napista", enum: "NAPISTA" }
 };
+
+export interface FilterValues {
+  searchText: string;
+  status: string;
+  temperature: string;
+  portal: string;
+  subject: string;
+}
+
+export interface LeadsFilterBarProps {
+  filters: FilterValues;
+  onFilterChange: (field: keyof FilterValues, value: string) => void;
+  onClear: () => void;
+}

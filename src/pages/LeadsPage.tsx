@@ -1,13 +1,20 @@
 import { useState, useEffect } from 'react';
-import {
-  Container, Typography, CircularProgress, Alert, Box, TextField,
-  Select, MenuItem, InputLabel, FormControl, Button, Paper, Pagination
-} from '@mui/material';
-import { type Lead, statusMap, temperatureMap, portalMap, subjectMap } from '../types/lead.model';
+import { Container, Typography, CircularProgress, Alert, Box, Pagination } from '@mui/material';
+import type { FilterValues, Lead } from '../types/lead.model';
 import { LeadsTable, type SortConfig } from '../components/LeadsTable';
 import { LeadDetailModal } from '../components/LeadDetailModal';
+import { LeadsFilterBar } from '../components/LeadsFilterBar';
 import { useDebounce } from '../hooks/useDebounce';
 import type { Page } from '../types/pagination.model';
+
+// Estado inicial para os filtros, para facilitar o reset
+const initialFilters: FilterValues = {
+  searchText: '',
+  status: '',
+  temperature: '',
+  portal: '',
+  subject: ''
+};
 
 export function LeadsPage() {
   // --- ESTADO DA APLICAÇÃO ---
@@ -16,12 +23,8 @@ export function LeadsPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   
-  // --- ESTADO DOS FILTROS E PAGINAÇÃO ---
-  const [searchText, setSearchText] = useState('');
-  const [status, setStatus] = useState('');
-  const [temperature, setTemperature] = useState('');
-  const [portal, setPortal] = useState('');
-  const [subject, setSubject] = useState('');
+  // --- ESTADO DOS FILTROS (AGRUPADO) E PAGINAÇÃO ---
+  const [filters, setFilters] = useState<FilterValues>(initialFilters);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
@@ -29,7 +32,7 @@ export function LeadsPage() {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'sendDate', direction: 'desc' });
 
   // Debounce para o campo de busca
-  const debouncedSearchText = useDebounce(searchText, 500);
+  const debouncedSearchText = useDebounce(filters.searchText, 500);
 
   // --- EFEITO PRINCIPAL PARA BUSCAR DADOS ---
   useEffect(() => {
@@ -41,10 +44,10 @@ export function LeadsPage() {
         const params = new URLSearchParams();
         // Filtros
         if (debouncedSearchText) params.append('searchText', debouncedSearchText);
-        if (status) params.append('status', status);
-        if (temperature) params.append('temperature', temperature);
-        if (portal) params.append('portal', portal);
-        if (subject) params.append('subject', subject);
+        if (filters.status) params.append('status', filters.status);
+        if (filters.temperature) params.append('temperature', filters.temperature);
+        if (filters.portal) params.append('portal', filters.portal);
+        if (filters.subject) params.append('subject', filters.subject);
 
         // Paginação e Ordenação
         params.append('page', page.toString());
@@ -68,77 +71,40 @@ export function LeadsPage() {
     };
 
     fetchLeads();
-  }, [debouncedSearchText, status, temperature, portal, subject, page, sortConfig]); // Array de dependências
+  }, [debouncedSearchText, filters.status, filters.temperature, filters.portal, filters.subject, page, sortConfig]);
 
   // --- HANDLERS (MANIPULADORES DE EVENTOS) ---
   const handleSort = (field: string) => {
+    setPage(0); // Volta para a primeira página ao reordenar
     const isAsc = sortConfig.field === field && sortConfig.direction === 'asc';
     setSortConfig({ field, direction: isAsc ? 'desc' : 'asc' });
   };
   
+  const handleFilterChange = (field: keyof FilterValues, value: string) => {
+    setPage(0); // Volta para a primeira página ao aplicar um filtro
+    setFilters((prevFilters: any) => ({
+      ...prevFilters,
+      [field]: value
+    }));
+  };
+
   const handleClearFilters = () => {
-      setSearchText('');
-      setStatus('');
-      setTemperature('');
-      setPortal('');
-      setSubject('');
-      setPage(0);
-  }
+    setFilters(initialFilters);
+    setPage(0);
+  };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom>
-        Painel de Leads
+        Painel de Leads do Nil
       </Typography>
 
-      {/* --- SEÇÃO DE FILTROS --- */}
-      <Box component={Paper} elevation={2} sx={{ p: 2, mb: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-        <TextField 
-          label="Buscar por nome, email..."
-          variant="outlined"
-          size="small"
-          sx={{ flexGrow: 1, minWidth: '200px' }}
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-        />
-        <FormControl size="small" sx={{ minWidth: 150 }}>
-          <InputLabel>Status</InputLabel>
-          <Select value={status} label="Status" onChange={(e) => setStatus(e.target.value)}>
-            <MenuItem value=""><em>Todos</em></MenuItem>
-            {Object.entries(statusMap).map(([code, value]) => (
-              <MenuItem key={code} value={value.enum}>{value.label}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl size="small" sx={{ minWidth: 150 }}>
-          <InputLabel>Temperatura</InputLabel>
-          <Select value={temperature} label="Temperatura" onChange={(e) => setTemperature(e.target.value)}>
-            <MenuItem value=""><em>Todas</em></MenuItem>
-            {Object.entries(temperatureMap).map(([code, value]) => (
-              <MenuItem key={code} value={value.enum}>{value.label}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl size="small" sx={{ minWidth: 150 }}>
-          <InputLabel>Portal</InputLabel>
-          <Select value={portal} label="Portal" onChange={(e) => setPortal(e.target.value)}>
-            <MenuItem value=""><em>Todos</em></MenuItem>
-            {Object.entries(portalMap).map(([code, value]) => (
-              <MenuItem key={code} value={value.enum}>{value.label}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl size="small" sx={{ minWidth: 150 }}>
-          <InputLabel>Assunto</InputLabel>
-          <Select value={subject} label="Assunto" onChange={(e) => setSubject(e.target.value)}>
-            <MenuItem value=""><em>Todos</em></MenuItem>
-            {Object.entries(subjectMap).map(([code, value]) => (
-              <MenuItem key={code} value={value.enum}>{value.label}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Button variant="outlined" onClick={handleClearFilters}>Limpar Filtros</Button>
-      </Box>
+      {/* --- SEÇÃO DE FILTROS AGORA É UM COMPONENTE --- */}
+      <LeadsFilterBar 
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onClear={handleClearFilters}
+      />
 
       {isLoading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}><CircularProgress /></Box>

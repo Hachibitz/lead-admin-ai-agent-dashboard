@@ -1,0 +1,8 @@
+# Dependências que serão instaladas dentro do container
+node_modules
+
+# Arquivos de log
+npm-debug.log
+
+# Arquivos do sistema
+.DS_Store
