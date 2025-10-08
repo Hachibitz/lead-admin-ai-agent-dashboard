@@ -5,6 +5,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
 interface DecodedToken {
@@ -81,6 +82,11 @@ export default function LoginPage() {
           <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading}>
             {loading ? 'Entrando...' : 'Entrar'}
           </Button>
+          <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <RouterLink to="/forgot-password">
+              Esqueci minha senha
+            </RouterLink>
+          </Box>
         </Box>
       </Paper>
     </Container>

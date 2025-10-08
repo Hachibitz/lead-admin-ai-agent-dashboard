@@ -8,6 +8,8 @@ import LoginPage from './pages/LoginPage';
 import UsersAdminPage from './pages/UsersAdminPage';
 import RegisterUserPage from './pages/RegisterUserPage';
 import { InternalChatPage } from './pages/InternalChatPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import './App.css'
 
 const theme = createTheme({
@@ -57,6 +59,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route
             path="/*"
             element={
