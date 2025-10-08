@@ -6,6 +6,7 @@ import { LeadDetailModal } from '../components/LeadDetailModal';
 import { LeadsFilterBar } from '../components/LeadsFilterBar';
 import { useDebounce } from '../hooks/useDebounce';
 import type { Page } from '../types/pagination.model';
+import { fetchWithAuth } from '../utils/fetchWithAuth';
 
 // Estado inicial para os filtros, para facilitar o reset
 const initialFilters: FilterValues = {
@@ -54,7 +55,7 @@ export function LeadsPage() {
         params.append('size', '10');
         params.append('sort', `${sortConfig.field},${sortConfig.direction}`);
 
-        const response = await fetch(`http://localhost:8091/api/leads?${params.toString()}`);
+        const response = await fetchWithAuth(`http://localhost:8091/api/leads?${params.toString()}`); //TODO() configurar variável de ambiente para dev e prod (k8s)
         if (!response.ok) {
           throw new Error('Falha ao buscar os dados dos leads.');
         }
@@ -93,6 +94,53 @@ export function LeadsPage() {
     setPage(0);
   };
 
+  const handleSendMessage = async (lead: Lead) => {
+    if (!lead.phone) {
+      alert('Este lead não possui um número de telefone.');
+      return;
+    }
+    
+    // Pergunta ao agente antes de enviar
+    if (!confirm(`Deseja enviar a mensagem de promoção para ${lead.name} no número ${lead.phone}?`)) {
+      return;
+    }
+
+    try {
+      // ATENÇÃO: Substitua pelo SID do seu template real do Twilio
+      const templateSid = 'HXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'; 
+      
+      const requestBody = {
+        // Formato esperado pelo Twilio: "whatsapp:+5511999998888"
+        to: `whatsapp:${lead.phone.replace(/\D/g, '')}`, 
+        templateSid: templateSid,
+        variables: {
+          // As chaves "1", "2", etc., correspondem a {{1}}, {{2}} no seu template
+          '1': lead.name,
+          '2': lead.vehicle || 'o veículo de seu interesse',
+        }
+      };
+
+      const response = await fetchWithAuth('http://localhost:8091/api/whatsapp/messages/send-template', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        throw new Error(`Falha ao enviar mensagem: ${errorBody}`);
+      }
+
+      alert('Mensagem de promoção enviada com sucesso!');
+
+    } catch (err: any) {
+      console.error('Erro ao enviar mensagem via WhatsApp:', err);
+      alert(err.message || 'Ocorreu um erro inesperado ao enviar a mensagem.');
+    }
+  };
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h3" component="h1" gutterBottom>
@@ -112,7 +160,7 @@ export function LeadsPage() {
         <Alert severity="error">{error}</Alert>
       ) : (
         <>
-          <LeadsTable leads={leads} onRowClick={(lead) => setSelectedLead(lead)} sortConfig={sortConfig} onSort={handleSort} />
+          <LeadsTable leads={leads} onRowClick={(lead) => setSelectedLead(lead)} sortConfig={sortConfig} onSort={handleSort} onSendMessage={handleSendMessage} />
           {totalPages > 1 && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
               <Pagination

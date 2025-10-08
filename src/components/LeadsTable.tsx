@@ -1,5 +1,6 @@
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, TableSortLabel
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, TableSortLabel,
+  Button
 } from '@mui/material';
 import type { Lead } from '../types/lead.model';
 import { statusMap, temperatureMap } from '../types/lead.model';
@@ -15,6 +16,7 @@ interface LeadsTableProps {
   onRowClick: (lead: Lead) => void;
   sortConfig: SortConfig;
   onSort: (field: string) => void;
+  onSendMessage: (lead: Lead) => void;
 }
 
 // Cabeçalhos da tabela, para facilitar a renderização e ordenação
@@ -24,6 +26,7 @@ const headCells = [
   { id: 'sendDate', label: 'Data do Contato' },
   { id: 'temperature', label: 'Temperatura', align: 'center' as const },
   { id: 'status', label: 'Status', align: 'center' as const },
+  { id: 'actions', label: 'Ações', align: 'center' as const, sortable: false },
 ];
 
 type ChipColor = 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
@@ -57,7 +60,7 @@ const getChipColor = (type: 'status' | 'temp', value: number | string): ChipColo
   return 'default';
 };
 
-export function LeadsTable({ leads, onRowClick, sortConfig, onSort }: LeadsTableProps) {
+export function LeadsTable({ leads, onRowClick, sortConfig, onSort, onSendMessage }: LeadsTableProps) {
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="tabela de leads">
@@ -69,13 +72,17 @@ export function LeadsTable({ leads, onRowClick, sortConfig, onSort }: LeadsTable
                 align={headCell.align || 'left'}
                 sortDirection={sortConfig.field === headCell.id ? sortConfig.direction : false}
               >
-                <TableSortLabel
-                  active={sortConfig.field === headCell.id}
-                  direction={sortConfig.field === headCell.id ? sortConfig.direction : 'asc'}
-                  onClick={() => onSort(headCell.id)}
-                >
-                  {headCell.label}
-                </TableSortLabel>
+                {headCell.sortable === false ? (
+                  headCell.label
+                ) : (
+                  <TableSortLabel
+                    active={sortConfig.field === headCell.id}
+                    direction={sortConfig.field === headCell.id ? sortConfig.direction : 'asc'}
+                    onClick={() => onSort(headCell.id)}
+                  >
+                    {headCell.label}
+                  </TableSortLabel>
+                )}
               </TableCell>
             ))}
           </TableRow>
@@ -112,6 +119,20 @@ export function LeadsTable({ leads, onRowClick, sortConfig, onSort }: LeadsTable
                   color={getChipColor('status', lead.status)}
                   size="small"
                 />
+              </TableCell>
+              <TableCell align="center">
+                <Button
+                  variant="contained"
+                  color="success"
+                  size="small"
+                  disabled={!lead.phone} // Desabilita o botão se não houver telefone
+                  onClick={(e) => {
+                    e.stopPropagation(); // Impede que o modal abra ao clicar no botão
+                    onSendMessage(lead);
+                  }}
+                >
+                  Enviar Promo
+                </Button>
               </TableCell>
             </TableRow>
           ))}
