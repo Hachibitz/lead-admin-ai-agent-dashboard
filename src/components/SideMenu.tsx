@@ -3,6 +3,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import { useNavigate, useLocation } from 'react-router-dom';
+import ForumIcon from '@mui/icons-material/Forum';
 
 export const drawerWidth = 240; // Exportando a variável
 
@@ -11,6 +12,12 @@ const menuItems = [
     label: 'Leads',
     icon: <TableChartIcon />,
     path: '/leads',
+    adminOnly: false,
+  },
+  {
+    label: 'Chat Interno',
+    icon: <ForumIcon />,
+    path: '/chat',
     adminOnly: false,
   },
   {

@@ -6,7 +6,8 @@ import AppLayout from './components/AppLayout';
 import { LeadsPage } from './pages/LeadsPage';
 import LoginPage from './pages/LoginPage';
 import UsersAdminPage from './pages/UsersAdminPage';
-import RegisterUserPage from './pages/RegisterUserPage'; // <-- IMPORTAR A NOVA PÁGINA
+import RegisterUserPage from './pages/RegisterUserPage';
+import { InternalChatPage } from './pages/InternalChatPage';
 import './App.css'
 
 const theme = createTheme({
@@ -64,7 +65,8 @@ function App() {
                   <Routes>
                     <Route path="/leads" element={<LeadsPage />} />
                     <Route path="/users" element={<UsersAdminPage />} />
-                    <Route path="/register" element={<RegisterUserPage />} /> {/* <-- ADICIONAR NOVA ROTA */}
+                    <Route path="/register" element={<RegisterUserPage />} />
+                    <Route path="/chat" element={<InternalChatPage />} />
                     <Route path="*" element={<Navigate to="/leads" replace />} />
                   </Routes>
                 </AppLayout>
