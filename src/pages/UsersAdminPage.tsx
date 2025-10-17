@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Container, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Alert
+  Container, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Alert, CircularProgress
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -66,36 +66,45 @@ export default function UsersAdminPage() {
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Typography variant="h5" gutterBottom>Usuários cadastrados</Typography>
+      
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      <Paper>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Usuário</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Telefone</TableCell>
-                <TableCell>Perfil</TableCell>
-                <TableCell align="right">Ações</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {users.map(user => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.username}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.phoneNumber}</TableCell>
-                  <TableCell>{user.role}</TableCell>
-                  <TableCell align="right">
-                    <IconButton onClick={() => setEditUser(user)}><EditIcon /></IconButton>
-                    <IconButton color="error" onClick={() => setDeleteUser(user)}><DeleteIcon /></IconButton>
-                  </TableCell>
+
+      {/* USO DO LOADING: Mostra o spinner enquanto carrega, ou a tabela quando terminar. */}
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
+          <CircularProgress />
+        </div>
+      ) : (
+        <Paper>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Usuário</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Telefone</TableCell>
+                  <TableCell>Perfil</TableCell>
+                  <TableCell align="right">Ações</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+              </TableHead>
+              <TableBody>
+                {users.map(user => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.username}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.phoneNumber}</TableCell>
+                    <TableCell>{user.role}</TableCell>
+                    <TableCell align="right">
+                      <IconButton onClick={() => setEditUser(user)}><EditIcon /></IconButton>
+                      <IconButton color="error" onClick={() => setDeleteUser(user)}><DeleteIcon /></IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      )}
 
       {/* Edit Dialog */}
       <Dialog open={!!editUser} onClose={() => setEditUser(null)}>
@@ -103,10 +112,10 @@ export default function UsersAdminPage() {
         <DialogContent>
           {editError && <Alert severity="error" sx={{ mb: 2 }}>{editError}</Alert>}
           {editSuccess && <Alert severity="success" sx={{ mb: 2 }}>{editSuccess}</Alert>}
-          <TextField label="Usuário" value={editUser?.username || ''} onChange={e => setEditUser((u: any) => ({ ...u, username: e.target.value }))} fullWidth sx={{ mb: 2 }} />
+          <TextField label="Usuário" value={editUser?.username || ''} onChange={e => setEditUser((u: any) => ({ ...u, username: e.target.value }))} fullWidth sx={{ mb: 2, mt: 1 }} />
           <TextField label="E-mail" value={editUser?.email || ''} onChange={e => setEditUser((u: any) => ({ ...u, email: e.target.value }))} fullWidth sx={{ mb: 2 }} />
           <TextField label="Telefone" value={editUser?.phoneNumber || ''} onChange={e => setEditUser((u: any) => ({ ...u, phoneNumber: e.target.value }))} fullWidth sx={{ mb: 2 }} />
-          <TextField select label="Perfil" value={editUser?.role || ''} onChange={e => setEditUser((u: any) => ({ ...u, role: e.target.value }))} fullWidth sx={{ mb: 2 }}>
+          <TextField select label="Perfil" value={editUser?.role || ''} onChange={e => setEditUser((u: any) => ({ ...u, role: e.target.value }))} fullWidth>
             {roles.map(opt => (
               <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
             ))}
