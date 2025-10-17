@@ -55,7 +55,7 @@ export function LeadsPage() {
         params.append('size', '10');
         params.append('sort', `${sortConfig.field},${sortConfig.direction}`);
 
-        const response = await fetchWithAuth(`http://localhost:8091/api/leads?${params.toString()}`); //TODO() configurar variável de ambiente para dev e prod (k8s)
+        const response = await fetchWithAuth(`/leads?${params.toString()}`);
         if (!response.ok) {
           throw new Error('Falha ao buscar os dados dos leads.');
         }
@@ -120,7 +120,7 @@ export function LeadsPage() {
         }
       };
 
-      const response = await fetchWithAuth('http://localhost:8091/api/whatsapp/messages/send-template', {
+      const response = await fetchWithAuth('/whatsapp/messages/send-template', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

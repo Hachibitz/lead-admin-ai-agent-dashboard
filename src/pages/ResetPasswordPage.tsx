@@ -30,7 +30,7 @@ export default function ResetPasswordPage() {
     setError(null);
     setSuccess(null);
     try {
-      await api.post('/auth/reset-password', { token, newPassword: password });
+      await api.post('/password-recovery/reset-password', { token, newPassword: password });
       setSuccess('Senha redefinida com sucesso! Você será redirecionado para o login.');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err: any) {
