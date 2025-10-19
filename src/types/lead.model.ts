@@ -8,10 +8,10 @@ export interface Lead {
   birthday?: string | null;      // Formato: YYYY-MM-DD
   sendDate?: string | null;      // Formato: YYYY-MM-DD HH:MM:SS
   message?: string | null;
-  subject: number;
-  status: number;
-  temperature: number;
-  portal: number;
+  subject: string;
+  status: string;
+  temperature: string;
+  portal: string;
   vehicle?: string | null;
   licensePlate?: string | null;
 }
