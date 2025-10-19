@@ -106,8 +106,7 @@ export function LeadsPage() {
     }
 
     try {
-      // ATENÇÃO: Substitua pelo SID do seu template real do Twilio
-      const templateSid = 'HXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'; 
+      const templateSid = 'HXbc1f0bd2462f14daff818b7a05de2c11'; 
       
       const requestBody = {
         // Formato esperado pelo Twilio: "whatsapp:+5511999998888"

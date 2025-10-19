@@ -29,6 +29,8 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userRole');
       const { data } = await api.post('/auth', { identifier: username, password });
       const token = (data as { token: string }).token;
       
